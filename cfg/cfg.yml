@@ -1,0 +1,27 @@
+
+
+start_datetime: "2022-01-01"
+end_datetime: null
+
+metrics:
+  regions:
+    - nation
+    - Auckland
+  methods:
+    basic:
+      enable: true
+      window: 20
+    psd:
+      enable: true
+      sampling_frequency: 100
+    stl:
+      enable: true
+      window: 21
+    rsi:
+      enable: true
+      window: 8
+    fft:
+      enable: true
+      fft_cutoff: 0.5
+
+run_pca: true

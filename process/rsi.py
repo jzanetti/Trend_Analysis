@@ -3,7 +3,7 @@
 
 def cal_rsi(ww, window_length = 14):
     # Calculate daily price changes
-    ww["diff"] = ww["copies_per_day_per_person"].diff()
+    ww["diff"] = ww["data"].diff()
 
     # Calculate average gain and average loss
     ww['gain'] = ww["diff"].apply(lambda x: x if x > 0 else 0).rolling(window=window_length).mean()
