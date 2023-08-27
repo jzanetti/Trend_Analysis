@@ -19,13 +19,13 @@ metrics:
       enable: false
       window: 3
     rsi:
-      enable: false
-      window: 24
+      enable: true
+      window: 12
     fft:
       enable: false
       fft_cutoff: 0.05
     confidence_interval:
-      enable: true
+      enable: false
       n_samples: 100
       window: 4
 

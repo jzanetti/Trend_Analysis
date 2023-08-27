@@ -180,6 +180,10 @@ def plot_rsi(workdir, ww, region, window_length):
     ax1.set_xticklabels(xticklabels[::6], rotation=45)
     ax1.set_title(f"The relative strength index (RSI) \n Window length: {window_length} weeks, {region}")
 
+    # shaded areas
+    ax2.fill_between(range(len(ww.index)), 70.0, 100.0, interpolate=True, color='red', alpha=0.15)
+    ax2.fill_between(range(len(ww.index)), 0.0, 30.0, interpolate=True, color='green', alpha=0.15)
+
     fig.tight_layout()
     savefig(join(workdir, f"rsi_{region}.png"))
     close()

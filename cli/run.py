@@ -83,28 +83,28 @@ def main(workdir: str, cfg: str):
 
         if cfg["metrics"]["methods"]["basic"]["enable"]:
             for proc_region in cfg["metrics"]["regions"]:
-                proc_ww1 = cal_basic_stats(proc_ww, window_size=cfg["metrics"]["methods"]["basic"]["window"])
-                plot_basic_stats(workdir, proc_ww1, proc_region, cfg["metrics"]["methods"]["basic"]["window"])
+                proc_ww_output = cal_basic_stats(proc_ww, window_size=cfg["metrics"]["methods"]["basic"]["window"])
+                plot_basic_stats(workdir, proc_ww_output, proc_region, cfg["metrics"]["methods"]["basic"]["window"])
 
         if cfg["metrics"]["methods"]["rsi"]["enable"]:
-            proc_ww1 = cal_rsi(proc_ww, window_length=cfg["metrics"]["methods"]["rsi"]["window"])
-            plot_rsi(workdir, proc_ww1, proc_region, cfg["metrics"]["methods"]["rsi"]["window"])
+            proc_ww_output = cal_rsi(proc_ww, window_length=cfg["metrics"]["methods"]["rsi"]["window"])
+            plot_rsi(workdir, proc_ww_output, proc_region, cfg["metrics"]["methods"]["rsi"]["window"])
 
         if cfg["metrics"]["methods"]["psd"]["enable"]:
-            proc_psd = ts2psd(proc_ww, sampling_frequency=cfg["metrics"]["methods"]["psd"]["sampling_frequency"])
-            plot_psd(workdir, proc_psd, proc_region, cfg["metrics"]["methods"]["psd"]["sampling_frequency"])
+            proc_ww_output = ts2psd(proc_ww, sampling_frequency=cfg["metrics"]["methods"]["psd"]["sampling_frequency"])
+            plot_psd(workdir, proc_ww_output, proc_region, cfg["metrics"]["methods"]["psd"]["sampling_frequency"])
 
         if cfg["metrics"]["methods"]["fft"]["enable"]:
-            proc_ww1 = ts2fft(proc_ww, fft_cutoff=cfg["metrics"]["methods"]["fft"]["fft_cutoff"])
-            plot_fft(workdir, proc_ww1, proc_region, cfg["metrics"]["methods"]["fft"]["fft_cutoff"])
+            proc_ww_output = ts2fft(proc_ww, fft_cutoff=cfg["metrics"]["methods"]["fft"]["fft_cutoff"])
+            plot_fft(workdir, proc_ww_output, proc_region, cfg["metrics"]["methods"]["fft"]["fft_cutoff"])
 
         if cfg["metrics"]["methods"]["stl"]["enable"]:
-            stl_output = stl(proc_ww, cfg["metrics"]["methods"]["stl"]["window"])
-            plot_stl(workdir, stl_output, proc_region, cfg["metrics"]["methods"]["stl"]["window"])
+            proc_ww_output = stl(proc_ww, cfg["metrics"]["methods"]["stl"]["window"])
+            plot_stl(workdir, proc_ww_output, proc_region, cfg["metrics"]["methods"]["stl"]["window"])
 
         if cfg["metrics"]["methods"]["confidence_interval"]["enable"]:
-            proc_ww1 = cal_confidence_interval(proc_ww, cfg["metrics"]["methods"]["confidence_interval"]["n_samples"], cfg["metrics"]["methods"]["confidence_interval"]["window"])
-            plot_confidence_interval(workdir, proc_ww1, proc_region, cfg["metrics"]["methods"]["confidence_interval"]["window"])
+            proc_ww_output = cal_confidence_interval(proc_ww, cfg["metrics"]["methods"]["confidence_interval"]["n_samples"], cfg["metrics"]["methods"]["confidence_interval"]["window"])
+            plot_confidence_interval(workdir, proc_ww_output, proc_region, cfg["metrics"]["methods"]["confidence_interval"]["window"])
 
 
 
