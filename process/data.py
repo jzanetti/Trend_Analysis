@@ -23,7 +23,7 @@ def read_ww(ww_all: dict, levels: str or list) -> DataFrame:
         return ww_all["region"][ww_all["region"]["region"].isin(levels)]
 
 
-def download_ww(workdir: str, force=False) -> DataFrame:
+def download_ww(workdir: str, start_t, end_t, force=False) -> DataFrame:
 
     data_to_download = {
         "nation": {
@@ -59,13 +59,10 @@ def download_ww(workdir: str, force=False) -> DataFrame:
             ww_region["data"] = ww_region["copies_per_day_per_person"] * ww_region["population_covered"]
             ww_region.rename(columns={"Region": "region"}, inplace=True)
             ww_region = ww_region.drop(columns=["copies_per_day_per_person", "population_covered"])
-
-    return concat([ww_nation, ww_region], axis=0)
-    """
-    ww_nation["region"] = ww_nation["region"].astype(str)
-    ww_region["region"] = ww_region["region"].astype(str)
-    z = ww_nation.merge(ww_region, left_index=True, right_index=True, how='outer', suffixes=('_x', '_y'))
-    z['region'] = z['region_y'].fillna(z['region_x'])
-
-    return {"nation": ww_nation, "region": ww_region}
-    """
+    data = concat([ww_nation, ww_region], axis=0)
+    if start_t is None:
+        start_t = "1977-01-01"
+    if end_t is None:
+        end_t = "2030-01-01"
+    filtered_df = data[(data.index >= start_t) & (data.index <= end_t )]
+    return filtered_df

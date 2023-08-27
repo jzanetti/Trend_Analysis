@@ -1,6 +1,40 @@
-from matplotlib.pyplot import savefig, close, subplots, title, semilogy, xlabel, ylabel, figure, plot, legend
+from matplotlib.pyplot import savefig, close, subplots, title, semilogy, xlabel, ylabel, figure, plot, legend, fill_between
 from numpy import ones
 from os.path import join
+
+
+def plot_confidence_interval(workdir, ww, region, window):
+    # Plotting
+    fig, ax1 = subplots()
+    ax1.plot(ww.index, ww['data'], label='Noisy Data')
+    ax1.fill_between(ww.index, ww["lower"], ww["upper"], alpha=0.2, label='95% CI')
+    ax1.legend()
+    ax1.set_title(f"raw data with confidence interval, {region} \n Window: {window}")
+    fig.tight_layout()
+    savefig(join(workdir, f"confidence_interval_{region}.png"))
+    close()
+
+
+
+def plot_raw(workdir, ww, region):
+
+    fig, ax1 = subplots()
+    color = 'tab:blue'
+    ax1.set_xlabel('Date')
+    ax1.set_ylabel('data', color=color)
+    ax1.plot(range(len(ww.index)), ww["data"], color=color)
+    ax1.tick_params(axis='y', labelcolor=color)
+
+    # Set custom x-axis tick labels with rotation
+    xticklabels = ww.index.strftime('%Y-%m-%d')  # Format the dates as desired
+    ax1.set_xticks(range(len(xticklabels))[::6])
+    ax1.set_xticklabels(xticklabels[::6], rotation=45)
+    ax1.set_title(f"raw data, {region}")
+
+    fig.tight_layout()
+    savefig(join(workdir, f"raw_{region}.png"))
+    close()
+
 
 
 def plot_pca(workdir, pca_output):
@@ -37,7 +71,7 @@ def plot_basic_stats(workdir, ww, region, window):
         color = 'tab:blue'
         ax1.set_xlabel('Date')
         ax1.set_ylabel('data', color=color)
-        ax1.plot(ww.index, ww["data"], color=color)
+        ax1.plot(range(len(ww.index)), ww["data"], color=color)
         ax1.tick_params(axis='y', labelcolor=color)
         # Create a twin Axes sharing the xaxis
         ax2 = ax1.twinx()
@@ -45,13 +79,13 @@ def plot_basic_stats(workdir, ww, region, window):
         # Plot the second dataset on the right y-axis
         color = 'tab:red'
         ax2.set_ylabel(key, color=color)
-        ax2.plot(ww.index, ww[key], color=color)
+        ax2.plot(range(len(ww.index)), ww[key], color=color)
         ax2.tick_params(axis='y', labelcolor=color)
-
 
         # Set custom x-axis tick labels with rotation
         xticklabels = ww.index.strftime('%Y-%m-%d')  # Format the dates as desired
-        ax1.set_xticklabels(xticklabels, rotation=45)
+        ax1.set_xticks(range(len(xticklabels))[::6])
+        ax1.set_xticklabels(xticklabels[::6], rotation=45)
         ax1.set_title(f"{key}, Window: {window} \n {region}")
 
         fig.tight_layout()
@@ -93,7 +127,7 @@ def plot_fft(workdir, ww, region, fft_cutoff):
     color = 'tab:blue'
     ax1.set_xlabel('Date')
     ax1.set_ylabel('data', color=color)
-    ax1.plot(ww.index, ww["data"], color=color)
+    ax1.plot(range(len(ww.index)), ww["data"], color=color)
     ax1.tick_params(axis='y', labelcolor=color)
 
     # Create a twin Axes sharing the xaxis
@@ -102,12 +136,13 @@ def plot_fft(workdir, ww, region, fft_cutoff):
     # Plot the second dataset on the right y-axis
     color = 'tab:red'
     ax2.set_ylabel('fft', color=color)
-    ax2.plot(ww.index, ww["fft"], color=color)
+    ax2.plot(range(len(ww.index)), ww["fft"], color=color)
     ax2.tick_params(axis='y', labelcolor=color)
 
     # Set custom x-axis tick labels with rotation
     xticklabels = ww.index.strftime('%Y-%m-%d')  # Format the dates as desired
-    ax1.set_xticklabels(xticklabels, rotation=45)
+    ax1.set_xticks(range(len(xticklabels))[::6])
+    ax1.set_xticklabels(xticklabels[::6], rotation=45)
     ax1.set_title(f"Fast Fourier Transform  \n FFT cutoff: {fft_cutoff * 100.0}%, {region} ")
     
     # xticks(rotation=45)
@@ -125,7 +160,7 @@ def plot_rsi(workdir, ww, region, window_length):
     color = 'tab:blue'
     ax1.set_xlabel('Date')
     ax1.set_ylabel('data', color=color)
-    ax1.plot(ww.index, ww["data"], color=color)
+    ax1.plot(range(len(ww.index)), ww["data"], color=color)
     ax1.tick_params(axis='y', labelcolor=color)
 
     # Create a twin Axes sharing the xaxis
@@ -134,14 +169,15 @@ def plot_rsi(workdir, ww, region, window_length):
     # Plot the second dataset on the right y-axis
     color = 'tab:red'
     ax2.set_ylabel('RSI', color=color)
-    ax2.plot(ww.index, ww["RSI"], color=color)
+    ax2.plot(range(len(ww.index)), ww["RSI"], color=color)
     ax2.tick_params(axis='y', labelcolor=color)
-    ax2.plot(ww.index, 30.0 * ones(len(ww.index)), color=color, linestyle="--", linewidth=0.5)
-    ax2.plot(ww.index, 70.0 * ones(len(ww.index)), color=color, linestyle="--", linewidth=0.5)
+    ax2.plot(range(len(ww.index)), 30.0 * ones(len(ww.index)), color=color, linestyle="--", linewidth=0.5)
+    ax2.plot(range(len(ww.index)), 70.0 * ones(len(ww.index)), color=color, linestyle="--", linewidth=0.5)
 
     # Set custom x-axis tick labels with rotation
     xticklabels = ww.index.strftime('%Y-%m-%d')  # Format the dates as desired
-    ax1.set_xticklabels(xticklabels, rotation=45)
+    ax1.set_xticks(range(len(xticklabels))[::6])
+    ax1.set_xticklabels(xticklabels[::6], rotation=45)
     ax1.set_title(f"The relative strength index (RSI) \n Window length: {window_length} weeks, {region}")
 
     fig.tight_layout()

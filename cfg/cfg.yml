@@ -5,23 +5,28 @@ end_datetime: null
 
 metrics:
   regions:
-    - nation
+    # - nation
     - Auckland
   methods:
+    raw: false
     basic:
-      enable: true
-      window: 20
+      enable: false
+      window: 24
     psd:
-      enable: true
+      enable: false
       sampling_frequency: 100
     stl:
-      enable: true
-      window: 21
+      enable: false
+      window: 3
     rsi:
-      enable: true
-      window: 8
+      enable: false
+      window: 24
     fft:
+      enable: false
+      fft_cutoff: 0.05
+    confidence_interval:
       enable: true
-      fft_cutoff: 0.5
+      n_samples: 100
+      window: 4
 
 run_pca: true

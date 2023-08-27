@@ -11,19 +11,23 @@ The following metrics can be obtained from **ESR Trend Analysis**:
     - Moving variance
     - Moving standard deviation
     - Autocorrelation
+    - Resampling/confidence interval
 
- - Power spectral density
- - Seasonal trend decomposition
- - Relative strength index
- - Fast Fourier transform
- - Principal component analysis
+  - Advanced metrics:
+    - Power spectral density
+    - Seasonal trend decomposition
+    - Relative strength index
+    - Fast Fourier transform
+    - Principal component analysis
 
 Note that this system is not intended to be used to produce predictions.
 
 ## Installation:
+All the dependancies are included in ``env.yml``, the package can be installed following:
 ```
 conda env create -f env.yml
 ```
+This will create an conda environment called ``trend_analysis``.
 
 ## Run:
 The trend analysis should be run under the environment ``trend_analysis``
@@ -41,33 +45,44 @@ where ``--workdir`` is the working directory where holds all the intermediate an
 ## Configuration:
 An example of the configuration can be found at ``cfg/cfg.yml``, it controls all the task to be run in the system
 
-```
-start_datetime: "2022-01-01"
-end_datetime: null
+  ```
+  start_datetime: "2022-01-01"
+  end_datetime: null
 
-metrics:
-  regions:
-    - nation
-    - Auckland
-  methods:
-    basic:
-      enable: true
-      window: 20
-    psd:
-      enable: true
-      sampling_frequency: 100
-    stl:
-      enable: true
-      window: 21
-    rsi:
-      enable: true
-      window: 8
-    fft:
-      enable: true
-      fft_cutoff: 0.5
+  metrics:
+    regions:
+      # - nation
+      - Auckland
+    methods:
+      raw: false
+      basic:
+        enable: false
+        window: 24
+      psd:
+        enable: false
+        sampling_frequency: 100
+      stl:
+        enable: false
+        window: 3
+      rsi:
+        enable: false
+        window: 24
+      fft:
+        enable: false
+        fft_cutoff: 0.05
+      confidence_interval:
+        enable: true
+        n_samples: 100
+        window: 4
 
-run_pca: true
-```
+  run_pca: true
+  ```
+
+
+
+
+
+
 
 
 
