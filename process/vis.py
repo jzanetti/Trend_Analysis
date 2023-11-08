@@ -6,7 +6,7 @@ from os.path import join
 def plot_confidence_interval(workdir, ww, region, window):
     # Plotting
     fig, ax1 = subplots()
-    ax1.plot(ww.index, ww['data'], label='Noisy Data')
+    ax1.plot(ww.index, ww['data'], label='Raw Data')
     ax1.fill_between(ww.index, ww["lower"], ww["upper"], alpha=0.2, label='95% CI')
     ax1.legend()
     ax1.set_title(f"raw data with confidence interval, {region} \n Window: {window}")

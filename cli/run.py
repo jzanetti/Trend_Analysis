@@ -46,6 +46,14 @@ def setup_parser():
     )
 
     parser.add_argument(
+        "--data_src",
+        type=str,
+        help="Data source to use [If None, then Github data will be used]",
+        required=False,
+        default=None
+    )
+
+    parser.add_argument(
         "--cfg",
         required=True,
         help="Configuration path",
@@ -53,23 +61,25 @@ def setup_parser():
 
 
     return parser.parse_args(
-        [
-            "--workdir",
-            "/tmp/trend_analysis",
-            "--cfg",
-            "cfg/cfg.yml",
-        ]
+        # [
+        #    "--workdir",
+        #    "/tmp/trend_analysis",
+        #    "--data_src",
+        #    "etc/ww_{type}.csv",
+        #    "--cfg",
+        #    "cfg/cfg.yml",
+        # ]
     )
 
 
-def main(workdir: str, cfg: str):
+def main(workdir: str, data_src: str or None, cfg: str):
     
     cfg = read_cfg(cfg)
 
     if not exists(workdir):
         makedirs(workdir)
 
-    ww_all = download_ww(workdir, cfg["start_datetime"], cfg["end_datetime"], force=False)
+    ww_all = download_ww(workdir, data_src, cfg["start_datetime"], cfg["end_datetime"], force=False)
 
     if cfg["run_pca"]:
         pca_output = pca(ww_all)
@@ -110,4 +120,4 @@ def main(workdir: str, cfg: str):
 
 if __name__ == "__main__":
     args = setup_parser()
-    main(args.workdir, args.cfg)
+    main(args.workdir, args.data_src, args.cfg)

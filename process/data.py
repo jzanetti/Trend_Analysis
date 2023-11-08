@@ -23,43 +23,77 @@ def read_ww(ww_all: dict, levels: str or list) -> DataFrame:
         return ww_all["region"][ww_all["region"]["region"].isin(levels)]
 
 
-def download_ww(workdir: str, start_t, end_t, force=False) -> DataFrame:
+def download_ww(workdir: str, data_src: str, start_t, end_t, force=False, use_covered_pop=False) -> DataFrame:
 
-    data_to_download = {
-        "nation": {
-            "local": join(workdir, "ww_nation.csv"),
-            "remote": WW_DATA_NATIONAL_PATH
-        },
-        "region": {
-            "local": join(workdir, "ww_region.csv"),
-            "remote": WW_DATA_REGION_PATH
+    if data_src is None:
+        data_to_download = {
+            "nation": {
+                "local": join(workdir, "ww_nation.csv"),
+                "remote": None
+            },
+            "region": {
+                "local": join(workdir, "ww_region.csv"),
+                "remote": WW_DATA_REGION_PATH
+            }
         }
-    }
+    else:
+        data_to_download = {
+            "nation": {
+                "local": data_src.format(type="national"),
+                "remote": None
+            },
+            "region": {
+                "local": data_src.format(type="regional"),
+                "remote": None
+            }
+        }
 
+    ww_nation = None
+    ww_region = None
     for data_type in data_to_download:
-        if force or (not exists(data_to_download[data_type]["local"])):
-            response = requests_get(data_to_download[data_type]["remote"])
 
-            with open(data_to_download[data_type]["local"], "wb") as fid:
-                fid.write(response.content)
+        if data_to_download[data_type]["remote"] is not None:
+            if force or (not exists(data_to_download[data_type]["local"])):
+                response = requests_get(data_to_download[data_type]["remote"])
+
+                with open(data_to_download[data_type]["local"], "wb") as fid:
+                    fid.write(response.content)
         
-        if data_type == "nation":
+        if data_type in ["customized_national", "nation"]:
 
             ww_nation = pandas_read_csv(data_to_download[data_type]["local"])[["week_end_date", "copies_per_day_per_person", "national_pop"]]
             ww_nation['week_end_date'] = to_datetime(ww_nation['week_end_date'])
             ww_nation.set_index('week_end_date', inplace=True)
-            ww_nation["data"] = ww_nation["copies_per_day_per_person"] * ww_nation["national_pop"]
+            if use_covered_pop:
+                ww_nation["data"] = ww_nation["copies_per_day_per_person"] * ww_nation["national_pop"]
+            else:
+                ww_nation["data"] = ww_nation["copies_per_day_per_person"]
             ww_nation = ww_nation.drop(columns=["copies_per_day_per_person", "national_pop"])
             ww_nation["region"] = "nation"
         
         elif data_type == "region":
-            ww_region = pandas_read_csv(data_to_download[data_type]["local"])[["week_end_date", "Region", "copies_per_day_per_person", "population_covered"]]
+            try:
+                ww_region = pandas_read_csv(data_to_download[data_type]["local"])[["week_end_date", "Region", "copies_per_day_per_person", "population_covered"]]
+            except KeyError:
+                ww_region = pandas_read_csv(data_to_download[data_type]["local"])[["week_end_date", "region", "copies_per_day_per_person", "population_covered"]]
             ww_region['week_end_date'] = to_datetime(ww_region['week_end_date'])
             ww_region.set_index('week_end_date', inplace=True)
-            ww_region["data"] = ww_region["copies_per_day_per_person"] * ww_region["population_covered"]
+            if use_covered_pop:
+                ww_region["data"] = ww_region["copies_per_day_per_person"] * ww_region["population_covered"]
+            else:
+                ww_region["data"] = ww_region["copies_per_day_per_person"] 
             ww_region.rename(columns={"Region": "region"}, inplace=True)
             ww_region = ww_region.drop(columns=["copies_per_day_per_person", "population_covered"])
-    data = concat([ww_nation, ww_region], axis=0)
+
+    data = []
+
+    if ww_nation is not None:
+        data.append(ww_nation)
+
+    if ww_region is not None:
+        data.append(ww_region)
+    
+    data = concat(data, axis=0)
     if start_t is None:
         start_t = "1977-01-01"
     if end_t is None:
