@@ -3,13 +3,15 @@ from numpy import ones
 from os.path import join
 
 
-def plot_confidence_interval(workdir, ww, region, window):
+def plot_confidence_interval(workdir, ww, region, window, plot_raw: bool = True):
     # Plotting
     fig, ax1 = subplots()
-    ax1.plot(ww.index, ww['data'], label='Raw Data')
+    if plot_raw:
+        ax1.plot(ww.index, ww['data'], label='Raw Data')
     ax1.fill_between(ww.index, ww["lower"], ww["upper"], alpha=0.2, label='95% CI')
     ax1.legend()
     ax1.set_title(f"raw data with confidence interval, {region} \n Window: {window}")
+    ax1.set_xticklabels(ax1.get_xticklabels(), rotation=45, ha="right")
     fig.tight_layout()
     savefig(join(workdir, f"confidence_interval_{region}.png"))
     close()
@@ -62,20 +64,21 @@ def plot_pca(workdir, pca_output):
         savefig(join(workdir, f"pca_{data_type}.png"))
         close()
 
-def plot_basic_stats(workdir, ww, region, window):
+def plot_basic_stats(workdir, ww, region, window, plot_raw: bool = False, unit: str = "weeks"):
     color = 'tab:blue'
     for key in ["MovingMean", "MovingMedian", "MovingVariance", "MovingStd", "Autocorrelation"]:
-        fig, ax1 = subplots()
 
-
-        color = 'tab:blue'
-        ax1.set_xlabel('Date')
-        ax1.set_ylabel('data', color=color)
-        ax1.plot(range(len(ww.index)), ww["data"], color=color)
-        ax1.tick_params(axis='y', labelcolor=color)
-        # Create a twin Axes sharing the xaxis
-        ax2 = ax1.twinx()
-
+        if plot_raw:
+            fig, ax1 = subplots()
+            color = 'tab:blue'
+            ax1.set_xlabel('Date')
+            ax1.set_ylabel('data', color=color)
+            ax1.plot(range(len(ww.index)), ww["data"], color=color)
+            ax1.tick_params(axis='y', labelcolor=color)
+            # Create a twin Axes sharing the xaxis
+            ax2 = ax1.twinx()
+        else:
+            fig, ax2 = subplots()
         # Plot the second dataset on the right y-axis
         color = 'tab:red'
         ax2.set_ylabel(key, color=color)
@@ -84,9 +87,9 @@ def plot_basic_stats(workdir, ww, region, window):
 
         # Set custom x-axis tick labels with rotation
         xticklabels = ww.index.strftime('%Y-%m-%d')  # Format the dates as desired
-        ax1.set_xticks(range(len(xticklabels))[::6])
-        ax1.set_xticklabels(xticklabels[::6], rotation=45)
-        ax1.set_title(f"{key}, Window: {window} \n {region}")
+        ax2.set_xticks(range(len(xticklabels))[::6])
+        ax2.set_xticklabels(xticklabels[::6], rotation=45)
+        ax2.set_title(f"{key}, Window: {window} {unit} \n {region} wide")
 
         fig.tight_layout()
         savefig(join(workdir, f"{key}_{region}.png"))

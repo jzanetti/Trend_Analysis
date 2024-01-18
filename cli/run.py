@@ -65,7 +65,7 @@ def setup_parser():
         #    "--workdir",
         #    "/tmp/trend_analysis",
         #    "--data_src",
-        #    "etc/ww_{type}.csv",
+        #    "etc/2024-01-14/ww_{type}.csv",
         #    "--cfg",
         #    "cfg/cfg.yml",
         # ]
