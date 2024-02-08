@@ -49,7 +49,7 @@ def setup_parser():
     parser.add_argument(
         "--data_src",
         type=str,
-        help="Data source to use [If None, then Github data will be used]",
+        help="Data source (dir) to use [If None, then Github data will be used]",
         required=False,
         default=None
     )
@@ -62,14 +62,14 @@ def setup_parser():
 
 
     return parser.parse_args(
-        #[
-        #    "--workdir",
-        #    "/tmp/trend_analysis/20240126",
-        #    #"--data_src",
-        #    #"etc/2024-01-14/ww_{type}.csv",
-        #    "--cfg",
-        #    "cfg/cfg.yml",
-        #]
+        [
+            "--workdir",
+            "/tmp/trend_analysis/20240226",
+            "--data_src",
+            "etc/2024-02-09",
+            "--cfg",
+            "cfg/cfg.yml",
+        ]
     )
 
 

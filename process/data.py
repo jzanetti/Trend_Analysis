@@ -1,6 +1,6 @@
 from requests import get as requests_get
 from process import DATA_PATH
-from os.path import join, exists
+from os.path import join, exists, basename
 from pandas import read_csv as pandas_read_csv
 from pandas import DataFrame, to_datetime, concat
 from yaml import safe_load
@@ -24,7 +24,7 @@ def get_data_path(workdir: str, data_src: str, data_type: str, data_area: str, f
         }
     else:
         data_to_download = {
-            "local": data_src,
+            "local": join(data_src, basename(DATA_PATH.format(data_type=data_type, data_area=data_area))),
             "remote": None
         }
 
@@ -61,18 +61,13 @@ def download_data(
     Returns:
         DataFrame: _description_
     """
-
-    if data_src is None:
-        data_src = []
-        for i in range(len(data_areas)):
-            data_src.append(None)
     
     all_data = []
     if data_type == "cases":
         all_data = []
-        for i, data_area in enumerate(data_areas):
+        for _, data_area in enumerate(data_areas):
 
-            data_to_download = get_data_path(workdir, data_src[i], data_type, data_area, force)
+            data_to_download = get_data_path(workdir, data_src, data_type, data_area, force)
 
             if data_area == "national":
                 data = pandas_read_csv(data_to_download["local"])
@@ -90,8 +85,8 @@ def download_data(
             all_data.append(data)
     
     elif data_type == "ww":
-        for i, data_area in enumerate(data_areas):
-            data_to_download = get_data_path(workdir, data_src[i], data_type, data_area, force)
+        for _, data_area in enumerate(data_areas):
+            data_to_download = get_data_path(workdir, data_src, data_type, data_area, force)
             if data_area == "national":
                 data = pandas_read_csv(data_to_download["local"])[["week_end_date", "copies_per_day_per_person", "national_pop"]]
                 data['week_end_date'] = to_datetime(data['week_end_date'])
@@ -127,4 +122,4 @@ def download_data(
 
     filtered_df.index.name = None
 
-    return filtered_df
+    return filtered_df.sort_index(ascending=True)
