@@ -2,6 +2,18 @@ from matplotlib.pyplot import savefig, close, subplots, title, semilogy, xlabel,
 from numpy import ones
 from os.path import join
 
+def plot_corr(workdir, corr_data, window, region: str):
+    fig, ax1 = subplots()
+    plot(range(len(corr_data.index)), corr_data.values)
+    # Set custom x-axis tick labels with rotation
+    xticklabels = corr_data.index.strftime('%Y-%m-%d')  # Format the dates as desired
+    ax1.set_xticks(range(len(xticklabels))[::6])
+    ax1.set_xticklabels(xticklabels[::6], rotation=45)
+    ax1.set_title(f"Correlation between Covid-19 cases and SARS-CoV-2 in wastewater \n Rolling window: {window} weeks; Area: {region}")
+
+    fig.tight_layout()
+    savefig(join(workdir, f"corr_{region}.png"))
+    close()
 
 def plot_confidence_interval(workdir, ww, region, window, plot_raw: bool = True):
     # Plotting

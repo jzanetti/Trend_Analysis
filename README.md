@@ -19,6 +19,7 @@ The following metrics can be obtained from **ESR Trend Analysis**:
     - Relative strength index
     - Fast Fourier transform
     - Principal component analysis
+    - Correlation (e.g., normalized gradient between Covid-19 cases and wasterwater measurements)
 
 Note that this system is not intended to be used to produce predictions.
 

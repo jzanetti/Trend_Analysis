@@ -12,17 +12,18 @@ Description:
 import argparse
 from os.path import join, exists
 from os import makedirs
-from process.data import download_ww, read_ww
+from process.data import download_data, read_ww
 from process.data import read_cfg
 
 from process.rsi import cal_rsi
 from process.fft import ts2fft
 from process.psd import ts2psd
 from process.pca import pca
+from process.corr import cal_ww_case_corr
 from process.decomp import stl
 from process.conf_interval import cal_confidence_interval
 from process.basic_stats import cal_basic_stats
-from process.vis import plot_rsi, plot_fft, plot_basic_stats, plot_psd, plot_stl, plot_pca, plot_raw, plot_confidence_interval
+from process.vis import plot_rsi, plot_fft, plot_basic_stats, plot_psd, plot_stl, plot_pca, plot_raw, plot_confidence_interval, plot_corr
 def get_example_usage():
     example_text = """example:
         * run --workdir  /tmp/trend_analysis
@@ -61,14 +62,14 @@ def setup_parser():
 
 
     return parser.parse_args(
-        # [
+        #[
         #    "--workdir",
-        #    "/tmp/trend_analysis",
-        #    "--data_src",
-        #    "etc/2024-01-14/ww_{type}.csv",
+        #    "/tmp/trend_analysis/20240126",
+        #    #"--data_src",
+        #    #"etc/2024-01-14/ww_{type}.csv",
         #    "--cfg",
         #    "cfg/cfg.yml",
-        # ]
+        #]
     )
 
 
@@ -79,7 +80,33 @@ def main(workdir: str, data_src: str or None, cfg: str):
     if not exists(workdir):
         makedirs(workdir)
 
-    ww_all = download_ww(workdir, data_src, cfg["start_datetime"], cfg["end_datetime"], force=False)
+    ww_all = download_data(
+        workdir, 
+        cfg["start_datetime"], 
+        cfg["end_datetime"], 
+        force=True, 
+        data_areas=["national", "regional"], 
+        data_src=data_src)
+
+    if cfg["run_corr"]["enable"]:
+        case_all = download_data(
+            workdir, cfg["start_datetime"], 
+            cfg["end_datetime"], 
+            force=True, 
+            data_type="cases", 
+            data_areas=["national"], 
+            data_src=data_src)
+        corr = cal_ww_case_corr(
+            ww_all, 
+            case_all, 
+            rolling_window=cfg["run_corr"]["window"], 
+            if_norm=True, 
+            if_gradient=True)
+        plot_corr(
+            workdir, 
+            corr, 
+            cfg["run_corr"]["window"], 
+            "national")
 
     if cfg["run_pca"]:
         pca_output = pca(ww_all)
@@ -93,28 +120,62 @@ def main(workdir: str, data_src: str or None, cfg: str):
 
         if cfg["metrics"]["methods"]["basic"]["enable"]:
             for proc_region in cfg["metrics"]["regions"]:
-                proc_ww_output = cal_basic_stats(proc_ww, window_size=cfg["metrics"]["methods"]["basic"]["window"])
-                plot_basic_stats(workdir, proc_ww_output, proc_region, cfg["metrics"]["methods"]["basic"]["window"])
+                proc_ww_output = cal_basic_stats(
+                    proc_ww, window_size=cfg["metrics"]["methods"]["basic"]["window"])
+                plot_basic_stats(
+                    workdir, 
+                    proc_ww_output, 
+                    proc_region, 
+                    cfg["metrics"]["methods"]["basic"]["window"])
 
         if cfg["metrics"]["methods"]["rsi"]["enable"]:
-            proc_ww_output = cal_rsi(proc_ww, window_length=cfg["metrics"]["methods"]["rsi"]["window"])
-            plot_rsi(workdir, proc_ww_output, proc_region, cfg["metrics"]["methods"]["rsi"]["window"])
+            proc_ww_output = cal_rsi(
+                proc_ww,
+                window_length=cfg["metrics"]["methods"]["rsi"]["window"])
+            plot_rsi(
+                workdir, 
+                proc_ww_output, 
+                proc_region, 
+                cfg["metrics"]["methods"]["rsi"]["window"])
 
         if cfg["metrics"]["methods"]["psd"]["enable"]:
-            proc_ww_output = ts2psd(proc_ww, sampling_frequency=cfg["metrics"]["methods"]["psd"]["sampling_frequency"])
-            plot_psd(workdir, proc_ww_output, proc_region, cfg["metrics"]["methods"]["psd"]["sampling_frequency"])
+            proc_ww_output = ts2psd(
+                proc_ww, sampling_frequency=cfg["metrics"]["methods"]["psd"]["sampling_frequency"])
+            plot_psd(
+                workdir, 
+                proc_ww_output, 
+                proc_region, 
+                cfg["metrics"]["methods"]["psd"]["sampling_frequency"])
 
         if cfg["metrics"]["methods"]["fft"]["enable"]:
-            proc_ww_output = ts2fft(proc_ww, fft_cutoff=cfg["metrics"]["methods"]["fft"]["fft_cutoff"])
-            plot_fft(workdir, proc_ww_output, proc_region, cfg["metrics"]["methods"]["fft"]["fft_cutoff"])
+            proc_ww_output = ts2fft(
+                proc_ww, 
+                fft_cutoff=cfg["metrics"]["methods"]["fft"]["fft_cutoff"])
+            plot_fft(
+                workdir, 
+                proc_ww_output, 
+                proc_region, 
+                cfg["metrics"]["methods"]["fft"]["fft_cutoff"])
 
         if cfg["metrics"]["methods"]["stl"]["enable"]:
-            proc_ww_output = stl(proc_ww, cfg["metrics"]["methods"]["stl"]["window"])
-            plot_stl(workdir, proc_ww_output, proc_region, cfg["metrics"]["methods"]["stl"]["window"])
+            proc_ww_output = stl(
+                proc_ww, 
+                cfg["metrics"]["methods"]["stl"]["window"])
+            plot_stl(
+                workdir, 
+                proc_ww_output, 
+                proc_region, 
+                cfg["metrics"]["methods"]["stl"]["window"])
 
         if cfg["metrics"]["methods"]["confidence_interval"]["enable"]:
-            proc_ww_output = cal_confidence_interval(proc_ww, cfg["metrics"]["methods"]["confidence_interval"]["n_samples"], cfg["metrics"]["methods"]["confidence_interval"]["window"])
-            plot_confidence_interval(workdir, proc_ww_output, proc_region, cfg["metrics"]["methods"]["confidence_interval"]["window"])
+            proc_ww_output = cal_confidence_interval(
+                proc_ww, cfg["metrics"]["methods"]["confidence_interval"]["n_samples"], 
+                cfg["metrics"]["methods"]["confidence_interval"]["window"])
+            plot_confidence_interval(
+                workdir, 
+                proc_ww_output, 
+                proc_region, 
+                cfg["metrics"]["methods"]["confidence_interval"]["window"])
 
 
 

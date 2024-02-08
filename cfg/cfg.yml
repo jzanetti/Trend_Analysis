@@ -5,13 +5,13 @@ end_datetime: null
 
 metrics:
   regions:
-    - nation
+    - national
     #- Auckland
   methods:
     raw: true
     basic:
       enable: true
-      window: 4
+      window: 8
     psd:
       enable: false
       sampling_frequency: 100
@@ -30,3 +30,6 @@ metrics:
       window: 4
 
 run_pca: true
+run_corr:
+  enable: true
+  window: 12

@@ -6,7 +6,7 @@ def pca(ww_all):
     proc_df = ww_all.pivot(columns='region', values='data').fillna(0.0)
     proc_df.columns = proc_df.columns.rename(None)
 
-    proc_df = proc_df.drop(columns="nation")
+    proc_df = proc_df.drop(columns="national")
 
     # Standardize the data
     proc_df_standardized = (proc_df - proc_df.mean()) / proc_df.std()
