@@ -11,23 +11,28 @@ metrics:
     raw: true
     basic:
       enable: true
-      window: 8
+      window:
+        - 4 
+        - 8
     psd:
       enable: false
       sampling_frequency: 100
     stl:
       enable: false
-      window: 3
+      window: 
+        - 3
     rsi:
       enable: false
-      window: 12
+      window: 
+        - 12
     fft:
       enable: true
       fft_cutoff: 0.05
     confidence_interval:
       enable: true
       n_samples: 1000
-      window: 8
+      window: 
+        - 8
 
 run_pca: true
 run_corr:

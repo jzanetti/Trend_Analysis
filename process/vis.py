@@ -25,7 +25,7 @@ def plot_confidence_interval(workdir, ww, region, window, plot_raw: bool = True)
     ax1.set_title(f"raw data with confidence interval, {region} \n Window: {window}")
     ax1.set_xticklabels(ax1.get_xticklabels(), rotation=45, ha="right")
     fig.tight_layout()
-    savefig(join(workdir, f"confidence_interval_{region}.png"))
+    savefig(join(workdir, f"confidence_interval_{region}_{window}.png"))
     close()
 
 
@@ -104,7 +104,7 @@ def plot_basic_stats(workdir, ww, region, window, plot_raw: bool = False, unit: 
         ax2.set_title(f"{key}, Window: {window} {unit} \n {region} wide")
 
         fig.tight_layout()
-        savefig(join(workdir, f"{key}_{region}.png"))
+        savefig(join(workdir, f"{key}_{region}_window_{window}.png"))
         close()
 
 
@@ -131,7 +131,7 @@ def plot_stl(workdir, stl_data, region, window):
     legend()
 
     fig.tight_layout()
-    savefig(join(workdir, f"stl_{region}.png"))
+    savefig(join(workdir, f"stl_{region}_{window}.png"))
     close()
 
 def plot_fft(workdir, ww, region, fft_cutoff):
@@ -200,5 +200,5 @@ def plot_rsi(workdir, ww, region, window_length):
     ax2.fill_between(range(len(ww.index)), 0.0, 30.0, interpolate=True, color='green', alpha=0.15)
 
     fig.tight_layout()
-    savefig(join(workdir, f"rsi_{region}.png"))
+    savefig(join(workdir, f"rsi_{region}_window_{window_length}.png"))
     close()
