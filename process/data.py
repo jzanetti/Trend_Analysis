@@ -1,10 +1,10 @@
 from requests import get as requests_get
-from process import DATA_PATH
+from process import DATA_PATH, HOSP_DATA_PATH
 from os.path import join, exists, basename
 from pandas import read_csv as pandas_read_csv
 from pandas import DataFrame, to_datetime, concat
 from yaml import safe_load
-
+from pandas import read_excel as pandas_read_excel
 
 def read_cfg(cfg_path: str):
     with open(cfg_path, "r") as fid:
@@ -15,18 +15,25 @@ def read_ww(ww_all: dict, levels: str or list) -> DataFrame:
     return ww_all[ww_all["region"]== levels]
 
 
-def get_data_path(workdir: str, data_src: str, data_type: str, data_area: str, force: bool):
-    if data_src is None:
-        local_data = join(workdir, f"downloaded_data_{data_type}_{data_area}.csv")
+def get_data_path(workdir: str, data_src: str, data_type: str, data_area: str, force: bool, hosp_data: bool = False):
+    if hosp_data:
+        local_data = join(workdir, f"downloaded_data_hosp.xlsx")
         data_to_download = {
             "local": local_data,
-            "remote": DATA_PATH.format(data_type=data_type, data_area=data_area)
+            "remote": HOSP_DATA_PATH
         }
     else:
-        data_to_download = {
-            "local": join(data_src, basename(DATA_PATH.format(data_type=data_type, data_area=data_area))),
-            "remote": None
-        }
+        if data_src is None:
+            local_data = join(workdir, f"downloaded_data_{data_type}_{data_area}.csv")
+            data_to_download = {
+                "local": local_data,
+                "remote": DATA_PATH.format(data_type=data_type, data_area=data_area)
+            }
+        else:
+            data_to_download = {
+                "local": join(data_src, basename(DATA_PATH.format(data_type=data_type, data_area=data_area))),
+                "remote": None
+            }
 
     if data_to_download["remote"] is not None:
         if force or (not exists(data_to_download["local"])):
@@ -63,6 +70,22 @@ def download_data(
     """
     
     all_data = []
+
+    if data_type == "hosp":
+        data_to_download = get_data_path(workdir, None, None, None, force, hosp_data=True)
+        all_data = pandas_read_excel(data_to_download["local"], engine="openpyxl")
+        all_data = all_data.rename(columns={"COVID cases in hospital": "hosp"})
+        all_data['hosp'] = all_data["hosp"].replace("No longer collected on weekends or public holidays", 0)
+        all_data['hosp'] = all_data['hosp'].astype(int)
+        all_data['Date'] = to_datetime(all_data['Date'])  # Ensure the Date column is in datetime format
+        all_data.set_index('Date', inplace=True)  # Set the Date column as the index
+        all_data['hosp'] = all_data['hosp'].resample('W').sum()
+        all_data = all_data.dropna()
+        all_data = all_data[["hosp"]].drop_duplicates()
+        all_data.index.name = None
+        all_data = all_data.rename(columns={"hosp": "hosp_7d_avg"})
+        all_data["region"] = "national"
+        all_data = all_data.rename(columns={"hosp_7d_avg": "case_7d_avg"})
     if data_type == "cases":
         all_data = []
         for _, data_area in enumerate(data_areas):
@@ -113,7 +136,9 @@ def download_data(
                 data = data.drop(columns=["copies_per_day_per_person", "population_covered"])
             all_data.append(data)
 
-    all_data = concat(all_data, ignore_index=False)
+    if isinstance(all_data, list):
+        all_data = concat(all_data, ignore_index=False)
+
     if start_t is None:
         start_t = "1977-01-01"
     if end_t is None:
