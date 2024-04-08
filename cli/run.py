@@ -64,7 +64,7 @@ def setup_parser():
     return parser.parse_args(
         [
             "--workdir",
-            "/tmp/trend_analysis/20240329",
+            "/tmp/trend_analysis/20240408",
             #"--data_src",
             #"etc/2024-02-09",
             "--cfg",
@@ -90,6 +90,15 @@ def main(workdir: str, data_src: str or None, cfg: str):
 
     if cfg["run_corr"]["enable"]:
 
+
+        hosp_all = download_data(
+            workdir, cfg["start_datetime"], 
+            cfg["end_datetime"], 
+            force=True, 
+            data_type="hosp", 
+            data_areas=["national"], 
+            data_src=data_src)
+
         case_all = download_data(
             workdir, cfg["start_datetime"], 
             cfg["end_datetime"], 
@@ -97,6 +106,13 @@ def main(workdir: str, data_src: str or None, cfg: str):
             data_type="cases", 
             data_areas=["national"], 
             data_src=data_src)
+        
+        corr = cal_ww_case_corr(
+            ww_all, 
+            hosp_all, 
+            rolling_window=cfg["run_corr"]["window"], 
+            if_norm=True, 
+            if_gradient=False)
 
         corr = cal_ww_case_corr(
             ww_all, 
