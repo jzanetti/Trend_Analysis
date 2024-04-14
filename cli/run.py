@@ -64,11 +64,11 @@ def setup_parser():
     return parser.parse_args(
         [
             "--workdir",
-            "/tmp/trend_analysis/20240408",
+            "/tmp/trend_analysis/20240412_5",
             #"--data_src",
             #"etc/2024-02-09",
             "--cfg",
-            "cfg/cfg.yml",
+            "cfg/cfg_monthly.yml",
         ]
     )
 
@@ -83,7 +83,8 @@ def main(workdir: str, data_src: str or None, cfg: str):
     ww_all = download_data(
         workdir, 
         cfg["start_datetime"], 
-        cfg["end_datetime"], 
+        cfg["end_datetime"],
+        cfg["resample_method"],
         force=True, 
         data_areas=["national", "regional"], 
         data_src=data_src)
@@ -92,39 +93,54 @@ def main(workdir: str, data_src: str or None, cfg: str):
 
 
         hosp_all = download_data(
-            workdir, cfg["start_datetime"], 
-            cfg["end_datetime"], 
+            workdir, 
+            cfg["start_datetime"], 
+            cfg["end_datetime"],
+            cfg["resample_method"],
             force=True, 
             data_type="hosp", 
             data_areas=["national"], 
             data_src=data_src)
 
         case_all = download_data(
-            workdir, cfg["start_datetime"], 
-            cfg["end_datetime"], 
+            workdir, 
+            cfg["start_datetime"], 
+            cfg["end_datetime"],
+            cfg["resample_method"],
             force=True, 
             data_type="cases", 
             data_areas=["national"], 
             data_src=data_src)
         
-        corr = cal_ww_case_corr(
+        corr_hosp = cal_ww_case_corr(
             ww_all, 
             hosp_all, 
             rolling_window=cfg["run_corr"]["window"], 
-            if_norm=True, 
-            if_gradient=False)
+            if_norm=False, 
+            if_gradient=True)
 
-        corr = cal_ww_case_corr(
+        corr_all = cal_ww_case_corr(
             ww_all, 
             case_all, 
             rolling_window=cfg["run_corr"]["window"], 
-            if_norm=True, 
+            if_norm=False, 
             if_gradient=True)
+
         plot_corr(
             workdir, 
-            corr, 
-            cfg["run_corr"]["window"], 
-            "national")
+            corr_hosp, 
+            cfg["run_corr"]["window"],
+            cfg["resample_method"],
+            "national", 
+            "hosp")
+
+        plot_corr(
+            workdir, 
+            corr_all, 
+            cfg["run_corr"]["window"],
+            cfg["resample_method"], 
+            "national", 
+            "case")
 
     if cfg["run_pca"]:
         pca_output = pca(ww_all)
@@ -134,7 +150,7 @@ def main(workdir: str, data_src: str or None, cfg: str):
         proc_ww = read_ww(ww_all, proc_region)
 
         if cfg["metrics"]["methods"]["raw"]:
-            plot_raw(workdir, proc_ww, proc_region)
+            plot_raw(workdir, proc_ww, proc_region, cfg["resample_method"])
 
         if cfg["metrics"]["methods"]["basic"]["enable"]:
 
@@ -146,7 +162,8 @@ def main(workdir: str, data_src: str or None, cfg: str):
                         workdir, 
                         proc_ww_output, 
                         proc_region, 
-                        proc_window)
+                        proc_window,
+                        cfg["resample_method"])
 
         if cfg["metrics"]["methods"]["rsi"]["enable"]:
             for proc_window in cfg["metrics"]["methods"]["rsi"]["window"]:

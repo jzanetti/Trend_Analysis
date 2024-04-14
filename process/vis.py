@@ -2,17 +2,21 @@ from matplotlib.pyplot import savefig, close, subplots, title, semilogy, xlabel,
 from numpy import ones
 from os.path import join
 
-def plot_corr(workdir, corr_data, window, region: str):
+def plot_corr(workdir, corr_data, window, resample_method, region: str, type: str):
     fig, ax1 = subplots()
     plot(range(len(corr_data.index)), corr_data.values)
     # Set custom x-axis tick labels with rotation
     xticklabels = corr_data.index.strftime('%Y-%m-%d')  # Format the dates as desired
     ax1.set_xticks(range(len(xticklabels))[::6])
     ax1.set_xticklabels(xticklabels[::6], rotation=45)
-    ax1.set_title(f"Correlation between Covid-19 cases and SARS-CoV-2 in wastewater \n Rolling window: {window} weeks; Area: {region}")
+    ax1.set_xlabel("Date")
+    ax1.set_ylabel("Correlation")
+    ax1.set_title(f"Correlation (Graident) \n between Covid-19 " + \
+                  f"cases ({type}) and SARS-CoV-2 in wastewater \n " + \
+                  f"Rolling window: {window} weeks; Sampling: {resample_method}; Area: {region}")
 
     fig.tight_layout()
-    savefig(join(workdir, f"corr_{region}.png"))
+    savefig(join(workdir, f"corr_{type}_{region}.png"))
     close()
 
 def plot_confidence_interval(workdir, ww, region, window, plot_raw: bool = True):
@@ -30,7 +34,7 @@ def plot_confidence_interval(workdir, ww, region, window, plot_raw: bool = True)
 
 
 
-def plot_raw(workdir, ww, region):
+def plot_raw(workdir, ww, region, resample_method):
 
     fig, ax1 = subplots()
     color = 'tab:blue'
@@ -43,7 +47,7 @@ def plot_raw(workdir, ww, region):
     xticklabels = ww.index.strftime('%Y-%m-%d')  # Format the dates as desired
     ax1.set_xticks(range(len(xticklabels))[::6])
     ax1.set_xticklabels(xticklabels[::6], rotation=45)
-    ax1.set_title(f"raw data, {region}")
+    ax1.set_title(f"raw data, {resample_method}, {region}")
 
     fig.tight_layout()
     savefig(join(workdir, f"raw_{region}.png"))
@@ -76,7 +80,7 @@ def plot_pca(workdir, pca_output):
         savefig(join(workdir, f"pca_{data_type}.png"))
         close()
 
-def plot_basic_stats(workdir, ww, region, window, plot_raw: bool = False, unit: str = "weeks"):
+def plot_basic_stats(workdir, ww, region, window, resample_method, plot_raw: bool = False, unit: str = "weeks"):
     color = 'tab:blue'
     for key in ["MovingMean", "MovingMedian", "MovingVariance", "MovingStd", "Autocorrelation"]:
 
@@ -101,7 +105,7 @@ def plot_basic_stats(workdir, ww, region, window, plot_raw: bool = False, unit: 
         xticklabels = ww.index.strftime('%Y-%m-%d')  # Format the dates as desired
         ax2.set_xticks(range(len(xticklabels))[::6])
         ax2.set_xticklabels(xticklabels[::6], rotation=45)
-        ax2.set_title(f"{key}, Window: {window} {unit} \n {region} wide")
+        ax2.set_title(f"{key}, Rolling window: {window} {unit} \n Sampling interval: {resample_method}, {region} wide")
 
         fig.tight_layout()
         savefig(join(workdir, f"{key}_{region}_window_{window}.png"))

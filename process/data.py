@@ -47,7 +47,8 @@ def get_data_path(workdir: str, data_src: str, data_type: str, data_area: str, f
 def download_data(
         workdir: str, 
         start_t: str, 
-        end_t: str, 
+        end_t: str,
+        resample_method: str, 
         force=False, 
         use_covered_pop=False, 
         data_type: str = "ww",
@@ -86,7 +87,8 @@ def download_data(
         all_data = all_data.rename(columns={"hosp": "hosp_7d_avg"})
         all_data["region"] = "national"
         all_data = all_data.rename(columns={"hosp_7d_avg": "case_7d_avg"})
-    if data_type == "cases":
+
+    elif data_type == "cases":
         all_data = []
         for _, data_area in enumerate(data_areas):
 
@@ -147,4 +149,11 @@ def download_data(
 
     filtered_df.index.name = None
 
-    return filtered_df.sort_index(ascending=True)
+    filtered_df = filtered_df.sort_index(ascending=True)
+
+    if resample_method == "monthly":
+        filtered_df = filtered_df.groupby("region").resample('M').mean().reset_index()
+        filtered_df.set_index('level_1', inplace=True)
+        filtered_df.index.name = None
+
+    return filtered_df

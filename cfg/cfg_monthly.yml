@@ -3,7 +3,7 @@
 start_datetime: "2023-03-01"
 end_datetime: "2024-04-01"
 
-resample_method: weekly # weekly or monthly
+resample_method: monthly # weekly or monthly
 
 metrics:
   regions:
@@ -14,19 +14,19 @@ metrics:
     basic:
       enable: true
       window:
-        - 4 
-        - 8
+        - 1
+        - 2
     psd:
       enable: false
       sampling_frequency: 100
     stl:
       enable: false
       window: 
-        - 3
+        - 1
     rsi:
       enable: false
       window: 
-        - 12
+        - 3
     fft:
       enable: false
       fft_cutoff: 0.05
@@ -34,9 +34,9 @@ metrics:
       enable: false
       n_samples: 1000
       window: 
-        - 8
+        - 2
 
 run_pca: false
 run_corr:
   enable: true
-  window: 16
+  window: 1

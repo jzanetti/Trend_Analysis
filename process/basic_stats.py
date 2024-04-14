@@ -3,6 +3,9 @@
 
 def cal_basic_stats(ww, window_size=4):
 
+    #ww = ww[["data"]]
+
+    #monthly_data = ww.resample('M').mean()  
     # Calculate moving window mean
     ww['MovingMean'] = ww['data'].rolling(window=window_size).mean()
 

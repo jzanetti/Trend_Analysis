@@ -3,7 +3,13 @@ from numpy import gradient as numpy_gradient
 
 from copy import deepcopy
 
-def cal_ww_case_corr(ww_all, case_all, rolling_window: int = 12, if_norm: bool = False, if_gradient: bool = False, area: str = "national"):
+def cal_ww_case_corr(
+        ww_all, 
+        case_all, 
+        rolling_window: int = 12, 
+        if_norm: bool = False, 
+        if_gradient: bool = False, 
+        area: str = "national"):
 
     case_all2 = deepcopy(case_all)
     ww_all2 = deepcopy(ww_all)
