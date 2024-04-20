@@ -64,11 +64,11 @@ def setup_parser():
     return parser.parse_args(
         [
             "--workdir",
-            "/tmp/trend_analysis/20240412_5",
+            "/tmp/trend_analysis/20240420",
             #"--data_src",
             #"etc/2024-02-09",
             "--cfg",
-            "cfg/cfg_monthly.yml",
+            "cfg/cfg_weekly.yml",
         ]
     )
 
@@ -124,7 +124,7 @@ def main(workdir: str, data_src: str or None, cfg: str):
             case_all, 
             rolling_window=cfg["run_corr"]["window"], 
             if_norm=False, 
-            if_gradient=True)
+            if_gradient=False)
 
         plot_corr(
             workdir, 
