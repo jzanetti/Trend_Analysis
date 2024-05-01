@@ -11,7 +11,7 @@ def plot_corr(workdir, corr_data, window, resample_method, region: str, type: st
     ax1.set_xticklabels(xticklabels[::6], rotation=45)
     ax1.set_xlabel("Date")
     ax1.set_ylabel("Correlation")
-    ax1.set_title(f"Correlation (Graident) \n between Covid-19 " + \
+    ax1.set_title(f"Correlation \n between Covid-19 " + \
                   f"cases ({type}) and SARS-CoV-2 in wastewater \n " + \
                   f"Rolling window: {window} weeks; Sampling: {resample_method}; Area: {region}")
 
