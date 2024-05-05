@@ -1,6 +1,7 @@
 
 
 start_datetime: "2023-04-20"
+#start_datetime: null
 end_datetime: null
 
 resample_method: weekly # weekly or monthly
@@ -38,4 +39,4 @@ metrics:
 run_pca: false
 run_corr:
   enable: true
-  window: 4
+  window: 8

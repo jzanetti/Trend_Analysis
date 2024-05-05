@@ -64,7 +64,7 @@ def setup_parser():
     return parser.parse_args(
         [
             "--workdir",
-            "/tmp/trend_analysis/20240420",
+            "/tmp/trend_analysis/20240505",
             #"--data_src",
             #"etc/2024-02-09",
             "--cfg",
@@ -163,7 +163,8 @@ def main(workdir: str, data_src: str or None, cfg: str):
                         proc_ww_output, 
                         proc_region, 
                         proc_window,
-                        cfg["resample_method"])
+                        cfg["resample_method"],
+                        label_scale=6)
 
         if cfg["metrics"]["methods"]["rsi"]["enable"]:
             for proc_window in cfg["metrics"]["methods"]["rsi"]["window"]:

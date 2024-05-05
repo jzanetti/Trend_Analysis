@@ -2,13 +2,14 @@ from matplotlib.pyplot import savefig, close, subplots, title, semilogy, xlabel,
 from numpy import ones
 from os.path import join
 
-def plot_corr(workdir, corr_data, window, resample_method, region: str, type: str):
+def plot_corr(workdir, corr_data, window, resample_method, region: str, type: str, label_scale: int = 6):
     fig, ax1 = subplots()
     plot(range(len(corr_data.index)), corr_data.values)
     # Set custom x-axis tick labels with rotation
     xticklabels = corr_data.index.strftime('%Y-%m-%d')  # Format the dates as desired
-    ax1.set_xticks(range(len(xticklabels))[::6])
-    ax1.set_xticklabels(xticklabels[::6], rotation=45)
+    ax1.set_xticks(range(len(xticklabels))[::-label_scale][::-1])
+    ax1.set_xticklabels(xticklabels[::-label_scale][::-1], rotation=45)
+    ax1.grid()
     ax1.set_xlabel("Date")
     ax1.set_ylabel("Correlation")
     ax1.set_title(f"Correlation \n between Covid-19 " + \
@@ -80,7 +81,7 @@ def plot_pca(workdir, pca_output):
         savefig(join(workdir, f"pca_{data_type}.png"))
         close()
 
-def plot_basic_stats(workdir, ww, region, window, resample_method, plot_raw: bool = False, unit: str = "weeks"):
+def plot_basic_stats(workdir, ww, region, window, resample_method, plot_raw: bool = False, unit: str = "weeks", label_scale: int = 6):
     color = 'tab:blue'
     for key in ["MovingMean", "MovingMedian", "MovingVariance", "MovingStd", "Autocorrelation"]:
 
@@ -100,11 +101,12 @@ def plot_basic_stats(workdir, ww, region, window, resample_method, plot_raw: boo
         ax2.set_ylabel(key, color=color)
         ax2.plot(range(len(ww.index)), ww[key], color=color)
         ax2.tick_params(axis='y', labelcolor=color)
+        ax2.grid()
 
         # Set custom x-axis tick labels with rotation
         xticklabels = ww.index.strftime('%Y-%m-%d')  # Format the dates as desired
-        ax2.set_xticks(range(len(xticklabels))[::6])
-        ax2.set_xticklabels(xticklabels[::6], rotation=45)
+        ax2.set_xticks(range(len(xticklabels))[::-label_scale][::-1])
+        ax2.set_xticklabels(xticklabels[::-label_scale][::-1], rotation=45)
         ax2.set_title(f"{key}, Rolling window: {window} {unit} \n Sampling interval: {resample_method}, {region} wide")
 
         fig.tight_layout()
